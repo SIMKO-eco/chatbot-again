@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simko Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #chat-container {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      max-height: 600px;
+      background-color: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+    }
+
+    #chat-header {
+      background-color: #c40000;
+      color: white;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #chat-header span {
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .chat-controls {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .chat-controls button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #chat-messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      background-color: #1f1f1f;
+      font-size: 14px;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .user {
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+
+    .bot {
+      color: #ffffff;
+    }
+
+    #chat-input {
+      display: flex;
+      border-top: 1px solid #444;
+    }
+
+    #chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+      background: #333;
+      color: white;
+      font-size: 14px;
+    }
+
+    #chat-input button {
+      background: #c40000;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    #minimized-button {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #c40000;
+      color: white;
+      font-size: 28px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      z-index: 9998;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-container">
+  <div id="chat-header">
+    <span>Simko Assistant</span>
+    <div class="chat-controls">
+      <button id="minimize">–</button>
+      <button id="close">×</button>
+    </div>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input">
+    <input type="text" id="user-input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<button id="minimized-button">💬</button>
+
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const messages = document.getElementById('chat-messages');
+  const input = document.getElementById('user-input');
+  const closeBtn = document.getElementById('close');
+  const minimizeBtn = document.getElementById('minimize');
+  const minimizedBtn = document.getElementById('minimized-button');
+
+  window.onload = () => {
+    appendMessage('bot', 'Hi there! How can I assist you today?');
+  };
+
+  input.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    chatContainer.style.display = 'none';
+  });
+
+  minimizeBtn.addEventListener('click', () => {
+    chatContainer.style.display = 'none';
+    minimizedBtn.style.display = 'block';
+  });
+
+  minimizedBtn.addEventListener('click', () => {
+    chatContainer.style.display = 'flex';
+    minimizedBtn.style.display = 'none';
+  });
+
+  async function sendMessage() {
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    appendMessage('user', userText);
+    input.value = '';
+
+    const res = await fetch('http://127.0.0.1:5000/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText })
+    });
+
+    const data = await res.json();
+    appendMessage('bot', data.response);
+  }
+
+  function appendMessage(sender, text) {
+    const div = document.createElement('div');
+    div.className = 'message ' + sender;
+    div.innerHTML = `<span class="${sender}">${sender === 'user' ? 'You' : 'Simko'}:</span> ${text}`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
