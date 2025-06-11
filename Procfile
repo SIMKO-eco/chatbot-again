@@ -1,1 +1,2 @@
-web: python app.py
+web: python simko_chatbot.py
+
