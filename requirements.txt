@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 flask
 flask-cors
 requests
 openpyxl
-=======
-flask
-flask-cors
-requests
-openpyxl
->>>>>>> b506e534c287cc817aad1b625d34f411caa23f48
